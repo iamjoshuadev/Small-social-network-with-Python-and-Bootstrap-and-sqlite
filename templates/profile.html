@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Perfil</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Perfil de {{ user.username }}</h1>
+        <a href="{{ url_for('feed') }}" class="btn btn-primary">Volver</a>
+
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" class="card-img-top" alt="Foto de perfil">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ user.username }}</h5>
+                        <a href="/change_username" class="btn btn-danger">Cambiar Nombre</a>
+                        <a href="/upload_profile_picture" class="btn btn-danger">Cambiar Foto de perfil</a>
+                        <a href="{{ url_for('create_post') }}" class="btn btn-success">
+                            Crear publicacion
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <h4>Publicaciones</h4>
+                {% for post in user.posts %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p class="card-text">{{ post.content }}</p>
+                        {% if post.photo %}
+                        <img src="{{ url_for('static', filename='profile_pictures/' + post.photo) }}" alt="Foto de la publicación" class="img-fluid">
+                        {% endif %}
+                        <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" class="delete-form">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                         </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

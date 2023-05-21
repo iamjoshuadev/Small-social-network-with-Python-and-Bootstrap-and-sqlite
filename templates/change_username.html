@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cambiar nombre de usuario - Mi Red Social</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Cambiar nombre de usuario</h1>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-info">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('change_username') }}" method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.username.label(class='control-label') }}
+                {{ form.username(class='form-control') }}
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{{url_for('feed')}}" class="btn btn-danger">Cancelar</a>
+
+        </form>
+    </div>
+</body>
+</html>

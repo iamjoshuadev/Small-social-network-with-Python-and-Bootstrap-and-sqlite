@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <style>
+.profile-link {
+  display: inline-block;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.p{
+    display: flex;
+}
+
+.profile-img {
+  width: 50px; /* Ajusta el tamaño de acuerdo a tus necesidades */
+  height: 50px; /* Ajusta el tamaño de acuerdo a tus necesidades */
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+    </style>
+         {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-info">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+    <div class="container">
+        <h1 class="mt-4">Feed</h1>
+        <a href="{{ url_for('create_post') }}" class="btn btn-success">
+            Crear publicacion
+        </a>
+
+        <a href="/logout" class="btn btn-danger">Cerrar secion</a>
+        <div class="mt-4">
+            {% for post in posts %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <a href="{{ url_for('profile', username=post.user.username) }}" class="btn p">
+                        <img src="{{ url_for('static', filename='profile_pictures/' + (post.user.profile_picture or '')) }}" alt="Foto de perfil" class="profile-img">
+                        <h5 class="card-title">{{ post.user.username }}</h5>
+                    </a>
+                    <p class="card-text">{{ post.content }}</p>
+                    {% if post.photo %}
+                    <img src="{{ url_for('static', filename='profile_pictures/' + post.photo) }}" alt="Foto de la publicación" class="img-fluid">
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

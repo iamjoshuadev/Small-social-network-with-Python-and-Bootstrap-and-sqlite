@@ -1,0 +1,69 @@
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+{% extends 'home.html' %}
+{% block contenido %}
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-info">
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    {% endwith %}
+    <h1>Cambiar nombre de usuario</h1>
+  
+    <form action="{{ url_for('config') }}" method="post">
+        {{ formu.hidden_tag() }}
+        <div class="form-group">
+            {{ formu.username.label(class='control-label') }}
+            {{ formu.username(class='form-control') }}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    
+    </form>
+    
+    <br>
+    <h1>Cambiar contraseña</h1>
+
+    <form method="POST">
+        {{ formula.hidden_tag() }}
+        <div class="form-group">
+          <label for="current_password">{{ formula.current_password.label }}</label>
+          {{ formula.current_password(class="form-control") }}
+        </div>
+        <div class="form-group">
+          <label for="new_password">{{ formula.new_password.label }}</label>
+          {{ formula.new_password(class="form-control") }}
+        </div>
+        <div class="form-group">
+          <label for="confirm_password">{{ formula.confirm_password.label }}</label>
+          {{ formula.confirm_password(class="form-control") }}
+        </div>
+        <div class="form-group">
+          <input type="submit" value="Cambiar contraseña" class="btn btn-primary">
+        </div>
+      </form>
+
+
+    <h1>Cargar foto de perfil</h1>
+
+    <form action="{{ url_for('config') }}" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.picture.label(class='control-label') }}
+            {{ form.picture(class='form-control-file') }}
+        </div>
+        <button type="submit" class="btn btn-primary">Cargar</button>
+
+    </form>
+    <a href="/logout" class="btn btn-danger">Cerrar secion</a>
+
+    <form action="/delete_profile" method="post" onsubmit="return confirm('¿Estás seguro de que deseas eliminar tu perfil?');" style="margin-top:5px;">
+        <button type="submit" class="btn btn-danger">Eliminar perfil</button>
+    </form>
+    {% endblock contenido %}

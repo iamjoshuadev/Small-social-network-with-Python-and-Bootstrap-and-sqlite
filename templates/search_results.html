@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resultados de búsqueda</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+{% extends 'home.html' %}
+{% block contenido %}
+<div class="conta">
+    <h1>Resultados de búsqueda para "{{ search_query }}"</h1>
+    <ul style="list-style: none;">
+      {% for user in users %}
+      <li class="fs-2" style="margin: 20px;">
+      <a href="{{ url_for('profile', username=user.username) }}" class="fs-2"> 
+      <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" alt="Foto de perfil" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+        {{ user.username }}</a>
+        {% if current_user != user %}
+        {% if current_user.is_following(user) %}
+        <a href="{{ url_for('unfollow', user_id=user.id) }}" class="btn btn-danger">Dejar de Seguir</a>
+        {% else %}
+        <a href="{{ url_for('follow', user_id=user.id) }}" class="btn btn-primary">Seguir</a>
+        {% endif %}
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+    {% endblock contenido %}
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

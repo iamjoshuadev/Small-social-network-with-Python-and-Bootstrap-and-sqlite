@@ -1,144 +1,295 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <title>Home</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
+    <link rel="shortcut icon" href="../static/Logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <style>
-.profile-link {
-  display: inline-block;
-  border-radius: 50%;
-  overflow: hidden;
-}
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
 
-.p{
-    display: flex;
-}
+        .navbar {
+            background-color: #333;
+            padding: 10px;
+        }
 
-.profile-img {
-  width: 50px; 
-  height: 50px; 
-  object-fit: cover;
-  border-radius: 50%;
-}
+        .navbar-brand img {
+            height: 50px;
+            vertical-align: middle;
+        }
 
-.footer{
-  margin: 0;
-  height: 50px;
-  padding-top: 25px;
-}
-.footer p{
-  text-align: center;
-  /* margin-top: 30px; */
-  font-size: 15px;
-  color: gray;
-}
+        .navbar-nav {
+            margin-left: auto;
+        }
 
-.conta{
-  height: 100%;
-}
-.text{
-    width: 800px;
-    margin: auto;
-}
-.pa{
-  width: 800px;
-  margin: auto;
-}
+        .navbar-nav .nav-item {
+            margin-right: 10px;
+        }
+
+        .search-form {
+            display: flex;
+            margin-left: auto;
+        }
+
+        .search-input {
+            padding: 5px;
+            border-radius: 5px 0 0 5px;
+            border: none;
+        }
+
+        .search-button {
+            padding: 5px 10px;
+            border-radius: 0 5px 5px 0;
+            border: none;
+            background-color: #28a745;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .home-content {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .profile-link img {
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .card-title {
+            margin-bottom: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .card-text {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .post-image img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        .likes-count {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .comment {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .comment p {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .comment-username {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .timestamp {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .footer {
+            background-color: #333;
+            padding: 10px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 0;
+            font-size: 14px;
+        }
+           /* Estilos para el modo claro */
+           body.light-mode {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        /* Estilos para el modo oscuro */
+        body.dark-mode {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        /* Estilos específicos para el template home.html en el modo claro */
+        body.light-mode .home-content {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        body.dark-mode .clase{
+          background-color: #0e0e0e;  
+        }
+
+        /* Estilos específicos para el template home.html en el modo oscuro */
+        body.dark-mode .home-content {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        body.dark-mode input{
+            background-color: transparent;
+            color: #ffffff;
+        }
+
+        body.dark-mode .card{
+            background-color: #000;
+            color: #ffffff;
+            border: solid 1px #333;
+        }
+
+        body.dark-mode .d-flex{
+            background-color: #000;
+            color: #ffffff;
+            border: solid 1px #333;
+        }
     </style>
-         
-        <nav class="navbar bg-body-tertiary navbar-expand-lg navbar-dark bg-dark bg-body-tertiary">
-            <div class="container-fluid">
-            <li class="nav-item navbar-nav">
-              <a class="navbar-brand">FriendLink</a>
-            </li>
-            <li class="nav-item navbar-nav">
-              <a class="nav-link" href="{{ url_for('feed') }}">Feed</a>
-            </li>
-            <li class="nav-item navbar-nav">
-              <a class="nav-link" href="{{ url_for('profile', username=current_user.username) }}">Mi perfil</a>
-            </li>
-            <li class="nav-item navbar-nav">
-              <a class="nav-link" href="{{ url_for('config') }}">Configuración</a>
-            </li>
-            <li class="nav-item navbar-nav">
-              <a href="{{ url_for('create_post') }}" class="btn btn-success">Crear publicacion</a>
-            </li>
-              <form class="d-flex" role="search" method="POST" action="{{ url_for('search') }}">
-                <input class="form-control me-2" type="search" name="search_query" placeholder="Search" aria-label="Search" style="background-color: transparent;">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-              </form>
-            </div>
-          </nav>
-    <div class="container">
+    <script>
+        function toggleMode() {
+            var body = document.getElementsByTagName("body")[0];
+
+            if (body.classList.contains("light-mode")) {
+                body.classList.remove("light-mode");
+                body.classList.add("dark-mode");
+            } else {
+                body.classList.remove("dark-mode");
+                body.classList.add("light-mode");
+            }
+        }
+    </script>
+</head>
+
+<body class="{{ theme }}">
+    <nav class="navbar navbar-expand-lg navbar-dark clase">
+        
+            <a class="navbar-brand" href="#"><img src="../static/Logo.png" height="50px" alt=""></a>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('feed') }}">Feed</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('profile', username=current_user.username) }}">Mi perfil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('config') }}">Configuración</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('create_post') }}" class="btn btn-success">Crear publicación</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('users_messaged') }}" class="btn btn-success">Mensajes</a>
+                </li>
+            </ul>
+            <form class="search-form" role="search" method="POST" action="{{ url_for('search') }}">
+                <input class="search-input" type="search" name="search_query" placeholder="Buscar usuario" required>
+                <button class="search-button btn btn-outline-success" type="submit">Buscar</button>
+            </form>
+    
+    </nav>
+    <div class="container home-content">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <div class="alert alert-info">
-                <ul>
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="alert alert-info">
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
         {% endif %}
-    {% endwith %}
-    {% block contenido %}
+        {% endwith %}
+        {% block contenido %}
         <h1 class="mt-4">Feed</h1>
-       
-
         <div class="mt-4">
             {% for post in posts %}
-            <div class="card mb-3">
+            <div class="card">
                 <div class="card-body">
-                    <a href="{{ url_for('profile', username=post.user.username) }}" class="btn p">
-                        <img src="{{ url_for('static', filename='profile_pictures/' + (post.user.profile_picture or '')) }}" alt="Foto de perfil" class="profile-img">
-                        <h5 class="card-title">{{ post.user.username }}</h5>
-                        {% if current_user != post.user %}
-                        {% if current_user.is_following(post.user) %}
-                        <a href="{{ url_for('unfollow', user_id=post.user.id) }}" class="btn btn-danger">Dejar de Seguir</a>
-                        {% else %}
-                        <a href="{{ url_for('follow', user_id=post.user.id) }}" class="btn btn-primary">Seguir</a>
-                        {% endif %}
-                        {% endif %}
-                    </a>
-                   
+                    <div class="d-flex align-items-center">
+                        <a href="{{ url_for('profile', username=post.user.username) }}" class="profile-link">
+                            <img src="{{ url_for('static', filename='profile_pictures/' + (post.user.profile_picture or '')) }}"
+                                alt="Foto de perfil" class="profile-img">
+                        </a>
+                        <div class="ml-3">
+                            <h5 class="card-title">{{ post.user.username }}</h5>
+                            {% if current_user != post.user %}
+                            {% if current_user.is_following(post.user) %}
+                            <a href="{{ url_for('unfollow', user_id=post.user.id) }}" class="btn btn-danger">Dejar de
+                                Seguir</a>
+                            {% else %}
+                            <a href="{{ url_for('follow', user_id=post.user.id) }}" class="btn btn-primary">Seguir</a>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
                     <p class="card-text">{{ post.content }}</p>
                     {% if post.photo %}
-                    <img src="{{ url_for('static', filename='profile_pictures/' + post.photo) }}" alt="Foto de la publicación" class="img-fluid">
+                    <div class="post-image">
+                        <img src="{{ url_for('static', filename='profile_pictures/' + post.photo) }}"
+                            alt="Foto de la publicación" class="img-fluid">
+                    </div>
                     {% endif %}
-                    <p>{{ post.likes_count }} Me gusta</p>
-    
+                    <p class="likes-count">{{ post.likes_count }} Me gusta</p>
                     {% if current_user.is_authenticated %}
-                      {% if post.is_liked_by(current_user) %}
-                        <form action="{{ url_for('unlike', post_id=post.id) }}" method="post">
-                          <button type="submit" class="btn btn-danger">Quitar Me gusta</button>
-                        </form>
-                      {% else %}
-                        <form action="{{ url_for('like', post_id=post.id) }}" method="post">
-                          <button type="submit" class="btn btn-success">Dar Me gusta</button>
-                        </form>
-                      {% endif %}
+                    {% if post.is_liked_by(current_user) %}
+                    <form action="{{ url_for('unlike', post_id=post.id) }}" method="post">
+                        <button type="submit" class="btn btn-danger">Quitar Me gusta</button>
+                    </form>
+                    {% else %}
+                    <form action="{{ url_for('like', post_id=post.id) }}" method="post">
+                        <button type="submit" class="btn btn-success">Dar Me gusta</button>
+                    </form>
                     {% endif %}
-                    <!-- Mostrar los comentarios -->
-                    <h2>Comentarios</h2>
+                    {% endif %}
+                    <h2 class="comments-heading">Comentarios</h2>
                     {% for comment in post.comments %}
                     <div class="comment">
-                      <p>{{ comment.text }}</p>
-                      <p>Por: {{ comment.user.username }}</p>
-                      <form action="{{ url_for('eliminar_comentario', post_id=post.id, comment_id=comment.id) }}" method="POST">
-                        <button type="submit" class="btn btn-danger">Eliminar comentario</button>
-                      </form>
+                        <p>{{ comment.text }}</p>
+                        <p class="comment-username">Por: {{ comment.user.username }}</p>
+                        {% if current_user == comment.user %}
+                        <form action="{{ url_for('eliminar_comentario', post_id=post.id, comment_id=comment.id) }}"
+                            method="POST">
+                            <button type="submit" class="btn btn-danger">Eliminar comentario</button>
+                        </form>
+                        {% endif %}
                     </div>
-                  {% endfor %}
-                  
-                  <!-- Formulario para agregar un nuevo comentario -->
-                  <h2>Agregar comentario</h2>
-                  <form action="{{ url_for('agregar_comentario', post_id=post.id) }}" method="POST">
-                    <input type="text" name="comment_text" class="form-control" required>
-                    <button type="submit" class="btn btn-success">Enviar comentario</button>
-                  </form>
-                    <h6>{{ post.timestamp }}</h6>
+                    {% endfor %}
+                    <h2 class="add-comment-heading">Agregar comentario</h2>
+                    <form action="{{ url_for('agregar_comentario', post_id=post.id) }}" method="POST">
+                        <input type="text" name="comment_text" class="form-control" required>
+                        <button type="submit" class="btn btn-success">Enviar comentario</button>
+                    </form>
+                    <h6 class="timestamp">{{ post.timestamp }}</h6>
                 </div>
             </div>
             {% endfor %}
@@ -146,13 +297,12 @@
         {% endblock contenido %}
     </div>
     <footer class="footer bg-dark">
-      <div class="container-fluid"> 
-        <p>&copy; 2023 Equipo de desarrolladores de FriendLink</p>
-      </div>
+        <div class="container-fluid">
+            <p>&copy; 2023 Equipo de desarrolladores de FriendLink</p>
+        </div>
     </footer>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 </body>
+
 </html>

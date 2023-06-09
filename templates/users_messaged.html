@@ -1,0 +1,17 @@
+{% extends "home.html" %}
+
+{% block contenido %}
+  <div class="container">
+    <h1>Usuarios a los que has enviado mensajes</h1>
+    <ul class="list-group">
+      {% for user in users %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <a href="{{ url_for('chat', user_id=user.id) }}">{{ user.username }}</a>
+          <form action="{{ url_for('delete_conversation', user_id=user.id) }}" method="post">
+            <button type="submit" class="btn btn-danger">Eliminar Conversación</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

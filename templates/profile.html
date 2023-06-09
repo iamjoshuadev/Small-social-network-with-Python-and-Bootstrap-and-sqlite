@@ -3,11 +3,12 @@
 <head>
     <title>Perfil</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="shortcut icon" href="../static/Logo.png" type="image/x-icon">
 </head>
 <body>
     {% extends 'home.html' %}
     {% block contenido %}
-    <div class="conta">
+    <div class="container">
         {% if current_user != user %}
         <h1 class="mt-4">Perfil de {{ user.username }}</h1>
         {% endif %}
@@ -16,38 +17,71 @@
         {% endif %}
         <div class="row mt-4">
             <div class="col-md-4">
-                    <h2 class="card-title">{{ user.username }}</h2>
-                    <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" class="card-img-top" alt="Foto de perfil" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;">
-                    {% if current_user != user %}
-                    <a href="{{ url_for('chat', user_id=user.id) }}" class="btn btn-primary">Enviar mensaje</a>
-                    {% if current_user.is_following(user) %}
-                    <a href="{{ url_for('unfollow', user_id=user.id) }}" class="btn btn-danger">Dejar de Seguir</a>
-                    {% else %}
-                    <a href="{{ url_for('follow', user_id=user.id) }}" class="btn btn-primary">Seguir</a>
-                    {% endif %}
-                    {% endif %}
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h2 class="card-title">{{ user.username }}</h2>
+                        <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" class="card-img-top rounded-circle" alt="Foto de perfil" style="width: 150px; height: 150px; object-fit: cover;">
+                        <br><br>
+                        {% if current_user != user %}
+                        <a href="{{ url_for('chat', user_id=user.id) }}" class="btn btn-primary">Enviar mensaje</a>
+                        {% if current_user.is_following(user) %}
+                        <a href="{{ url_for('unfollow', user_id=user.id) }}" class="btn btn-danger">Dejar de Seguir</a>
+                        {% else %}
+                        <a href="{{ url_for('follow', user_id=user.id) }}" class="btn btn-primary">Seguir</a>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
             </div>
             <div class="col-md-8">
                 <h4>Publicaciones</h4>
                 {% for post in user.posts %}
                 <div class="card mb-3">
                     <div class="card-body">
-                        <p class="card-text">{{ post.content }}</p>
-                        {% if post.photo %}
-                        <img src="{{ url_for('static', filename='profile_pictures/' + post.photo) }}" alt="Foto de la publicación" class="img-fluid">
-                        {% endif %}
                         <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" class="delete-form">
                             {% if current_user == user %}
-                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                            <button type="submit" class="btn btn-danger float-right">Eliminar</button>
                             {% endif %}
-                         </form>
+                        </form>
+                        <p class="card-text">{{ post.content }}</p>
+                        {% if post.photo %}
+                        <img src="{{ url_for('static', filename='profile_pictures/' + post.photo) }}" alt="Foto de la publicación" class="img-fluid rounded" style="margin-bottom: 10px;">
+                        {% endif %}
+                        <p>{{ post.likes_count }} Me gusta</p>
+                        {% if current_user.is_authenticated %}
+                        {% if post.is_liked_by(current_user) %}
+                        <form action="{{ url_for('unlike', post_id=post.id) }}" method="post">
+                            <button type="submit" class="btn btn-danger">Quitar Me gusta</button>
+                        </form>
+                        {% else %}
+                        <form action="{{ url_for('like', post_id=post.id) }}" method="post">
+                            <button type="submit" class="btn btn-success">Dar Me gusta</button>
+                        </form>
+                        {% endif %}
+                        {% endif %}
+                        <h2>Comentarios</h2>
+                        {% for comment in post.comments %}
+                        <div class="comment mb-3">
+                            <p>{{ comment.text }}</p>
+                            <p>Por: {{ comment.user.username }}</p>
+                            <form action="{{ url_for('eliminar_comentario', post_id=post.id, comment_id=comment.id) }}" method="POST">
+                                <button type="submit" class="btn btn-danger">Eliminar comentario</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                        <h2>Agregar comentario</h2>
+                        <form action="{{ url_for('agregar_comentario', post_id=post.id) }}" method="POST">
+                            <input type="text" name="comment_text" class="form-control mb-2" placeholder="Escribe un comentario..." required>
+                            <button type="submit" class="btn btn-primary">Enviar comentario</button>
+                        </form>
+                        <h6>{{ post.timestamp }}</h6>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
-      </div>
-        {% endblock contenido %}
+    </div>
+    {% endblock contenido %}
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

@@ -6,8 +6,10 @@ from flask import (
     url_for,
     flash,
     request,
-    jsonify,
+    make_response,
 )
+
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (
     LoginManager,
@@ -31,7 +33,7 @@ from werkzeug.utils import secure_filename
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import PasswordField
 
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "mp4"}
 from datetime import datetime
 
 app = Flask(__name__)
@@ -50,7 +52,7 @@ class CreatePostForm(FlaskForm):
         "Foto",
         validators=[
             FileAllowed(ALLOWED_EXTENSIONS, "Solo se permiten archivos de imagen.")
-        ],
+        ]
     )
 
 
@@ -103,7 +105,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=False, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     profile_picture = db.Column(db.String(100))
-
+    premium = db.Column(db.Boolean, default=False)
     user_likes = db.relationship(
         "Post",
         secondary=likes,
@@ -135,7 +137,7 @@ class User(db.Model, UserMixin):
     def is_following(self, user):
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0
 
-    def __init__(self, username, password, profile_picture="hola"):
+    def __init__(self, username, password, profile_picture="default.png"):
         self.username = username
         self.password = password
         self.profile_picture = profile_picture
@@ -227,17 +229,33 @@ def eliminar_comentario(post_id, comment_id):
     return redirect(url_for("feed", post_id=post_id))
 
 
-@app.route("/messages")
+@app.route("/delete_conversation/<int:user_id>", methods=["POST"])
 @login_required
-def messages():
-    # Obtener todos los usuarios excepto el usuario actual
-    users = User.query.filter(User.id != current_user.id).all()
-    return render_template("messages.html", users=users)
+def delete_conversation(user_id):
+    user = User.query.get(user_id)
+    if user is None:
+        flash("Usuario no encontrado.", "error")
+        return redirect(url_for("users_messaged"))
+
+    # Eliminar los mensajes de la conversación
+    messages_to_delete = Message.query.filter(
+        (Message.sender_id == current_user.id) & (Message.receiver_id == user_id)
+        | (Message.sender_id == user_id) & (Message.receiver_id == current_user.id)
+    )
+
+    for message in messages_to_delete:
+        db.session.delete(message)
+
+    db.session.commit()
+
+    flash("Conversación eliminada exitosamente.", "success")
+    return redirect(url_for("users_messaged"))
 
 
 @app.route("/messages/<int:user_id>", methods=["GET", "POST"])
 @login_required
 def chat(user_id):
+    theme = request.cookies.get("theme", "light-mode")
     user = User.query.get(user_id)
     if user is None:
         flash("Usuario no encontrado.", "error")
@@ -249,7 +267,7 @@ def chat(user_id):
         db.session.add(message)
         db.session.commit()
         flash("Mensaje enviado exitosamente.", "success")
-        return redirect(url_for("chat", user_id=user_id))
+        return redirect(url_for("chat", user_id=user_id, theme=theme))
 
     messages = (
         Message.query.filter(
@@ -260,7 +278,22 @@ def chat(user_id):
         .all()
     )
 
-    return render_template("chat.html", user=user, messages=messages)
+    return render_template("chat.html", user=user, messages=messages, theme=theme)
+
+
+@app.route("/users_messaged")
+@login_required
+def users_messaged():
+    theme = request.cookies.get("theme", "light-mode")
+
+    # Obtener todos los usuarios a los que has enviado mensajes
+    users = (
+        User.query.join(Message, (User.id == Message.receiver_id))
+        .filter(Message.sender_id == current_user.id)
+        .distinct()
+    )
+
+    return render_template("users_messaged.html", users=users, theme=theme)
 
 
 @app.route("/like/<int:post_id>", methods=["POST"])
@@ -286,17 +319,19 @@ def unlike(post_id):
 @app.route("/profile/<username>")
 @login_required
 def profile(username):
+    theme = request.cookies.get("theme", "light-mode")
     user = User.query.filter_by(username=username).first()
     if user is None:
         flash("El usuario {} no existe.".format(username), "error")
         return redirect(url_for("feed"))
 
-    return render_template("profile.html", user=user)
+    return render_template("profile.html", user=user, theme=theme)
 
 
 @app.route("/create_post", methods=["GET", "POST"])
 @login_required
 def create_post():
+    theme = request.cookies.get("theme", "light-mode")
     form = CreatePostForm()
 
     if form.validate_on_submit():
@@ -317,13 +352,37 @@ def create_post():
         return redirect(url_for("feed"))
 
     posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template("create_post.html", form=form, posts=posts)
+    return render_template("create_post.html", form=form, posts=posts, theme=theme)
 
 
 @app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/feed")
 def feed():
     posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template("home.html", posts=posts)
+    theme = request.cookies.get("theme", "light-mode")
+    ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "mp4"}
+    return render_template("home.html", posts=posts, theme=theme, a = ALLOWED_EXTENSIONS)
+
+
+@app.route("/change-theme", methods=["POST"])
+def change_theme():
+    theme = request.form["theme"]
+    user = current_user
+
+    # Verificar si el usuario es premium antes de cambiar el tema
+    if user.premium:
+        # Guardar el tema seleccionado en una cookie
+        response = make_response(redirect(request.referrer))
+        response.set_cookie("theme", theme)
+        return response
+    else:
+        flash("Para cambiar el tema, debes ser usuario premium.")
+
+    return redirect(url_for("feed"))
 
 
 @app.route("/follow/<int:user_id>", methods=["GET", "POST"])
@@ -332,7 +391,7 @@ def follow(user_id):
     user = User.query.get(user_id)
     if user is None:
         flash("Usuario no encontrado.", "error")
-        return redirect(url_for("index"))
+        return redirect(url_for("feed"))
 
     current_user.follow(user)
     db.session.commit()
@@ -346,7 +405,7 @@ def unfollow(user_id):
     user = User.query.get(user_id)
     if user is None:
         flash("Usuario no encontrado.", "error")
-        return redirect(url_for("index"))
+        return redirect(url_for("feed"))
 
     current_user.unfollow(user)
     db.session.commit()
@@ -380,7 +439,7 @@ def login():
 
         if user and user.password == password:
             login_user(user)
-            return redirect(url_for("config"))
+            return redirect(url_for("feed"))
 
         flash("Nombre de usuario o contraseña incorrectos.")
         return redirect(url_for("login"))
@@ -408,7 +467,13 @@ def config():
     form = UploadProfilePictureForm()
     formu = ChangeUsernameForm()
     formula = ChangePasswordForm()
+    theme = request.cookies.get("theme", "light-mode")
 
+    if not current_user.premium and form.picture.data:
+        file_extension = os.path.splitext(form.picture.data.filename)[1].lower()
+        if file_extension == ".gif":
+            flash("Solo los usuarios premium pueden subir GIF como foto de perfil.")
+            return redirect(url_for("config"))
     if form.validate_on_submit():
         file = form.picture.data
 
@@ -442,24 +507,27 @@ def config():
         else:
             flash("Contraseña actual incorrecta.", "error")
 
-    return render_template("config.html", form=form, formu=formu, formula=formula)
+    return render_template(
+        "config.html", form=form, formu=formu, formula=formula, theme=theme
+    )
 
 
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for("login"))
+    return redirect(url_for("index"))
 
 
 @app.route("/search", methods=["GET", "POST"])
 @login_required
 def search():
+    theme = request.cookies.get("theme", "light-mode")
     if request.method == "POST":
         search_query = request.form["search_query"]
         users = User.query.filter(User.username.ilike(f"%{search_query}%")).all()
         return render_template(
-            "search_results.html", users=users, search_query=search_query
+            "search_results.html", users=users, search_query=search_query, theme=theme
         )
     return render_template("home.html")
 
@@ -508,7 +576,7 @@ def delete_profile():
     db.session.commit()
 
     flash("Tu perfil ha sido eliminado.", "success")
-    return redirect(url_for("login"))
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":

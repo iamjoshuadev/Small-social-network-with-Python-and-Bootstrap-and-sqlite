@@ -4,13 +4,11 @@
     <title>Crear Publicación</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-<body>
-    
-  {% extends 'home.html' %}
-  {% block contenido %}
-  <div class="conta">
+<body class="{{ theme }}">
+    {% extends 'home.html' %}
+    {% block contenido %}
+    <div class="container">
         <h1 class="mt-4">Crear Publicación</h1>
-
         <form action="{{ url_for('create_post') }}" method="POST" enctype="multipart/form-data" class="mt-4">
             {{ form.csrf_token }}
 
@@ -26,10 +24,9 @@
 
             <button type="submit" class="btn btn-primary">Publicar</button>
             <a href="{{url_for('feed')}}" class="btn btn-danger">Cancelar</a>
-
         </form>
-      </div>
-  {% endblock contenido %}
+    </div>
+    {% endblock contenido %}
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

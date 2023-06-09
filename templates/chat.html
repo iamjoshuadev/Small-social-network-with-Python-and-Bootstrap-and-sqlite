@@ -1,39 +1,51 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <title>Chat</title>
-</head>
-<style>
- 
-</style>
-<body>
+    <style>
+    
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding-top: 100px;
+        }
+
+        h1.card-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #chat-messages {
+            margin-bottom: 20px;
+        }
+    </style>
+
     {% extends 'home.html' %}
     {% block contenido %}
-    <div class="conta">
-    <h1 class="card-title">Chat con {{ user.username }}</h1>
-    <div id="chat-messages">
-        {% for message in messages %}
-       
-
+    <div class="container">
+        <h1 class="card-title">Chat con {{ user.username }}</h1>
+        <div id="chat-messages">
+            {% for message in messages %}
             <figure class="text">
                 <blockquote class="blockquote">
-                  <p>{{ message.content }}</p>
+                    <p>{{ message.content }}</p>
                 </blockquote>
                 <figcaption class="blockquote-footer">
                     {{ message.sender.username }}
                 </figcaption>
-              </figure>
-        {% endfor %}
-    </div>
-    <form method="POST" action="{{ url_for('chat', user_id=user.id) }}">
-        <div class="form-floating">
-            <textarea class="form-control pa" name="content" placeholder="Envia un mensage" id="floatingTextarea"></textarea>
+            </figure>
+            {% endfor %}
         </div>
-        <input type="submit" class="btn btn-success text-center" value="Enviar">
-    </form>
+        <form method="POST" action="{{ url_for('chat', user_id=user.id) }}">
+            <div class="form-group">
+                <label for="floatingTextarea">Envía un mensaje</label>
+                <textarea class="form-control" name="content" id="floatingTextarea" placeholder="Escribe tu mensaje aquí"></textarea>
+            </div>
+            <input type="submit" class="btn btn-success btn-block" value="Enviar">
+        </form>
     </div>
     {% endblock contenido %}
-</body>
-</html>
+

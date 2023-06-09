@@ -1,8 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Iniciar sesión - Mi Red Social</title>
+    <title>Iniciar sesión - FriendLink</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding-top: 100px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .alert {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -18,20 +38,19 @@
                 </div>
             {% endif %}
         {% endwith %}
-    
-        
-            <form action="{{ url_for('login') }}" method="post">
-                <div class="form-group">
-                    <label for="username">Nombre de usuario:</label>
-                    <input type="text" id="username" name="username" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-            <p>¿No tienes cuenta? <a href="{{ url_for('register') }}">Registrarse</a></p>
+
+        <form action="{{ url_for('login') }}" method="post">
+            <div class="form-group">
+                <label for="username">Nombre de usuario:</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+        <p class="text-center">¿No tienes cuenta? <a href="{{ url_for('register') }}">Registrarse</a></p>
     </div>
 </body>
 </html>
